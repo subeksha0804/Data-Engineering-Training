@@ -1,0 +1,233 @@
+# Questions
+
+1. Display all members.
+2. Display all books.
+3. Display all borrowings.
+4. Show members from **Hyderabad**.
+5. Show books in the **Database** category.
+6. Show books whose **price is greater than 600**.
+7. Show borrowings where **days_borrowed is greater than 5**.
+8. Display books sorted by **price descending**.
+9. Display members sorted by **name ascending**.
+10. Count the total number of members.
+11. Count the total number of books.
+12. Count how many books belong to the **Database** category.
+13. Find the **average price of all books**.
+14. Find the **maximum book price**.
+15. Find the **minimum book price**.
+16. Find the **total days borrowed per member**.
+17. Display borrowings along with **member details**.
+18. Display borrowings along with **book details**.
+19. Display **member name and book title** for each borrowing.
+20. Display **book title and total times it was borrowed**.
+21. Find the **total number of books borrowed by each member**.
+22. Find the **most borrowed book**.
+23. Find the **total borrowing count by category**.
+24. Find members who borrowed **more than one book**.
+25. Display:
+
+* member name
+* city
+* total books borrowed
+
+Sort by **highest books borrowed first**.
+
+
+
+ANSWERS :
+
+ 1.db.members.find()
+
+ 2.db.books.find()
+
+ 3.db.borrowings.find()
+
+ 4.db.members.find({ city: "Hyderabad" })
+
+ 5.db.books.find({ category: "Database" })
+
+ 6.db.books.find({ price: { $gt: 600 } })
+
+ 7.db.borrowings.find({ days_borrowed: { $gt: 5 } })
+
+ 8.db.books.find().sort({ price: -1 })
+
+ 9.db.members.find().sort({ name: 1 })
+
+ 10.db.members.countDocuments()
+
+ 11.db.books.countDocuments()
+
+ 12.db.books.countDocuments({ category: "Database" })
+
+ 13.db.books.aggregate([
+  { $group: { _id: null, avgPrice: { $avg: "$price" } } }
+])
+
+ 14.db.books.aggregate([
+  { $group: { _id: null, maxPrice: { $max: "$price" } } }
+])
+
+ 15.db.books.aggregate([
+  { $group: { _id: null, minPrice: { $min: "$price" } } }
+])
+
+ 16.db.borrowings.aggregate([
+  {
+    $group: {
+      _id: "$member_id",
+      total_days: { $sum: "$days_borrowed" }
+    }
+  }
+])
+
+ 17.db.borrowings.aggregate([
+  {
+    $lookup: {
+      from: "members",
+      localField: "member_id",
+      foreignField: "member_id",
+      as: "member_info"
+    }
+  }
+])
+
+ 18.db.borrowings.aggregate([
+  {
+    $lookup: {
+      from: "books",
+      localField: "book_id",
+      foreignField: "book_id",
+      as: "book_info"
+    }
+  }
+])
+
+ 19.db.borrowings.aggregate([
+  {
+    $lookup: {
+      from: "members",
+      localField: "member_id",
+      foreignField: "member_id",
+      as: "member"
+    }
+  },
+  { $unwind: "$member" },
+  {
+    $lookup: {
+      from: "books",
+      localField: "book_id",
+      foreignField: "book_id",
+      as: "book"
+    }
+  },
+  { $unwind: "$book" },
+  {
+    $project: {
+      _id: 0,
+      member_name: "$member.name",
+      book_title: "$book.title"
+    }
+  }
+])
+
+ 20. db.borrowings.aggregate([
+  {
+    $group: {
+      _id: "$book_id",
+      total_borrowed: { $sum: 1 }
+    }
+  },
+  {
+    $lookup: {
+      from: "books",
+      localField: "_id",
+      foreignField: "book_id",
+      as: "book"
+    }
+  },
+  { $unwind: "$book" },
+  {
+    $project: {
+      _id: 0,
+      title: "$book.title",
+      total_borrowed: 1
+    }
+  }
+])
+
+ 21. db.borrowings.aggregate([
+  {
+    $group: {
+      _id: "$member_id",
+      total_books: { $sum: 1 }
+    }
+  }
+])
+ 22. db.borrowings.aggregate([
+  {
+    $group: {
+      _id: "$book_id",
+      count: { $sum: 1 }
+    }
+  },
+  { $sort: { count: -1 } },
+  { $limit: 1 }
+])
+
+ 23. db.borrowings.aggregate([
+  {
+    $lookup: {
+      from: "books",
+      localField: "book_id",
+      foreignField: "book_id",
+      as: "book"
+    }
+  },
+  { $unwind: "$book" },
+  {
+    $group: {
+      _id: "$book.category",
+      total: { $sum: 1 }
+    }
+  }
+])
+
+ 24. db.borrowings.aggregate([
+  {
+    $group: {
+      _id: "$member_id",
+      total: { $sum: 1 }
+    }
+  },
+  {
+    $match: { total: { $gt: 1 } }
+  }
+])
+
+ 25. db.borrowings.aggregate([
+  {
+    $group: {
+      _id: "$member_id",
+      total_books: { $sum: 1 }
+    }
+  },
+  {
+    $lookup: {
+      from: "members",
+      localField: "_id",
+      foreignField: "member_id",
+      as: "member"
+    }
+  },
+  { $unwind: "$member" },
+  {
+    $project: {
+      _id: 0,
+      name: "$member.name",
+      city: "$member.city",
+      total_books: 1
+    }
+  },
+  { $sort: { total_books: -1 } }
+])
