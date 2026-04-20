@@ -1,0 +1,308 @@
+#Part 1 — Website Visit Analysis
+# task1-2
+f = open("website_visits.txt")
+visits = f.read().splitlines()
+print(visits)
+# Task 3
+print(len(visits))
+# Task 4
+unique = set(visits)
+print(unique)
+# task 5
+count = {}
+for v in visits:
+    if v in count:
+        count[v] = count[v] + 1
+    else:
+        count[v] = 1
+print(count)
+# task 6
+print(max(count, key=count.get))
+# Part 2 — Products (JSON)
+# Task 7–8: Read & Print
+import json
+
+data = json.load(open("products.json"))
+
+for p in data["products"]:
+    print(p["name"], p["price"])
+
+#   task 9
+products = {}
+
+for item in data["products"]:
+    id = item["product_id"]
+    products[id] = item
+
+print(products)
+# task 10
+max_price = max([products[id]["price"] for id in products])
+min_price = min([products[id]["price"] for id in products])
+
+for id in products:
+    if products[id]["price"] == max_price:
+        print(products[id]["name"], max_price)
+
+    if products[id]["price"] == min_price:
+        print(products[id]["name"], min_price)
+# Part 3 — Orders (CSV)
+# Task 12–13: Read & Print
+import csv
+
+orders = []
+
+with open("orders.csv") as f:
+    reader = csv.DictReader(f)
+
+    for row in reader:
+        orders.append(row)
+
+print(orders)
+# task 14
+qty = {}
+
+for i in range(len(orders)):
+    pid = orders[i]["product_id"]
+    q = int(orders[i]["quantity"])
+
+    if pid not in qty:
+        qty[pid] = 0
+
+    qty[pid] = qty[pid] + q
+
+print(qty)
+
+# task 15
+cust = {}
+
+for o in orders:
+    name = o["customer"]
+
+    if name in cust:
+        cust[name] = cust[name] + 1
+    else:
+        cust[name] = 1
+
+print(cust)
+
+# PART 4 — Sales Calculation (Easy Code)
+#  Task 16
+for o in orders:
+    pid = int(o["product_id"])
+    q = int(o["quantity"])
+    price = products[pid]["price"]
+
+    revenue = price * q
+    print(revenue)
+# task 17
+total = 0
+
+for o in orders:
+    pid = int(o["product_id"])
+    q = int(o["quantity"])
+    price = products[pid]["price"]
+
+    total = total + (price * q)
+
+print(total)
+# task 18
+rev = {}
+
+for o in orders:
+    pid = int(o["product_id"])
+    name = products[pid]["name"]
+    q = int(o["quantity"])
+    price = products[pid]["price"]
+
+    if name in rev:
+        rev[name] = rev[name] + (price * q)
+    else:
+        rev[name] = price * q
+
+print(rev)
+# task 19
+max_name = ""
+max_value = 0
+
+for p in rev:
+    if rev[p] > max_value:
+        max_value = rev[p]
+        max_name = p
+
+print(max_name)
+
+# PART 5 — Customer Analysis
+#  Task 20
+spend = {}
+
+for o in orders:
+    name = o["customer"]
+    pid = int(o["product_id"])
+    q = int(o["quantity"])
+    price = products[pid]["price"]
+
+    amount = price * q
+
+    if name in spend:
+        spend[name] = spend[name] + amount
+    else:
+        spend[name] = amount
+
+print(spend)
+
+# task 21
+top_name = ""
+top_amount = 0
+
+for c in spend:
+    if spend[c] > top_amount:
+        top_amount = spend[c]
+        top_name = c
+
+print(top_name)
+# task 22
+for c in spend:
+    if spend[c] > 50000:
+        print(c)
+
+# PART 6 — Functions
+# Task 23
+def load_visits():
+    with open("website_visits.txt") as f:
+        visits = f.read().splitlines()
+    return visits
+# Task 23
+def load_visits():
+    with open("website_visits.txt") as f:
+        visits = f.read().splitlines()
+    return visits
+ # Task 24
+def load_products():
+    import json
+
+    with open("products.json") as f:
+        data = json.load(f)
+
+    products = {}
+
+    for p in data["products"]:
+        products[p["product_id"]] = p
+
+    return products
+ # Task 25
+def load_orders():
+    import csv
+
+    orders = []
+
+    with open("orders.csv") as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            orders.append(row)
+
+    return orders
+# Task 26
+def product_revenue(orders, products):
+    rev = {}
+
+    for o in orders:
+        pid = int(o["product_id"])
+        name = products[pid]["name"]
+        price = products[pid]["price"]
+        q = int(o["quantity"])
+
+        if name in rev:
+            rev[name] = rev[name] + (price * q)
+        else:
+            rev[name] = price * q
+
+    return rev
+#  Task 27
+def customer_spending(orders, products):
+    spend = {}
+
+    for o in orders:
+        name = o["customer"]
+        pid = int(o["product_id"])
+        price = products[pid]["price"]
+        q = int(o["quantity"])
+
+        amount = price * q
+
+        if name in spend:
+            spend[name] = spend[name] + amount
+        else:
+            spend[name] = amount
+
+    return spend
+#  Task 28
+def top_customer(spend):
+    top_name = ""
+    top_amount = 0
+
+    for c in spend:
+        if spend[c] > top_amount:
+            top_amount = spend[c]
+            top_name = c
+
+    return top_name
+# PART 7
+print(type(orders))
+print(type(products))
+unique = set(visits)
+print(type(unique))
+pairs = []
+
+for p in rev:
+    pairs.append((p, rev[p]))
+
+print(pairs)
+
+# part 8
+
+with open("sales_report.txt", "w") as f:
+
+    f.write("E-Commerce Sales Report\n")
+
+    f.write("Total Website Visits: " + str(len(visits)) + "\n")
+    f.write("Unique Visitors: " + str(len(set(visits))) + "\n")
+    f.write("Total Revenue: " + str(total) + "\n")
+
+    top_name = ""
+    top_amount = 0
+
+    for c in spend:
+        if spend[c] > top_amount:
+            top_amount = spend[c]
+            top_name = c
+
+    f.write("Top Customer: " + top_name + "\n")
+
+    f.write("Product Sales\n")
+
+    for p in rev:
+        f.write(p + " " + str(rev[p]) + "\n")
+
+# task 29
+visited = set(visits)
+
+ordered = set()
+for o in orders:
+    ordered.add(o["customer"])
+
+print(visited - ordered)
+
+# task 30
+count = {}
+
+for v in visits:
+    if v in count:
+        count[v] = count[v] + 1
+    else:
+        count[v] = 1
+
+for o in orders:
+    name = o["customer"]
+    if count[name] <= 1:
+        print(name)
