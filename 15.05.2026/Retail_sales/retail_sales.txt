@@ -1,0 +1,12 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo "Running Retail Pipeline"
+
+- script: python retail_analysis.py
+
+- script: echo "Saving reports"

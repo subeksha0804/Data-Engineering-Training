@@ -1,0 +1,15 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- script: echo "Starting Attendance Pipeline"
+
+- script: python attendance_analysis.py
+
+- script: echo "Generating Reports"
+
+- script: echo "Pipeline Completed"
